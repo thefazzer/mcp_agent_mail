@@ -2008,10 +2008,20 @@ async def _generate_unique_agent_name(
             if mode == "strict":
                 raise ValueError("Name hint must contain alphanumeric characters.")
 
+    # First try base names (no suffix)
     for _ in range(1024):
         candidate = sanitize_agent_name(generate_agent_name())
         if candidate and await available(candidate):
             return candidate
+
+    # Fallback: try names with numeric suffixes (effectively infinite pool)
+    from mcp_agent_mail.utils import generate_agent_name_with_suffix
+
+    for suffix in range(2, 10000):
+        candidate = sanitize_agent_name(generate_agent_name_with_suffix(suffix))
+        if candidate and await available(candidate):
+            return candidate
+
     raise RuntimeError("Unable to generate a unique agent name.")
 
 

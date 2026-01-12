@@ -7,6 +7,7 @@ import re
 from typing import Iterable, Optional
 
 ADJECTIVES: Iterable[str] = (
+    # Original 12
     "Red",
     "Orange",
     "Pink",
@@ -19,8 +20,40 @@ ADJECTIVES: Iterable[str] = (
     "Chartreuse",
     "Lilac",
     "Fuchsia",
+    # Extended colors
+    "Silver",
+    "Gold",
+    "Crimson",
+    "Amber",
+    "Coral",
+    "Cyan",
+    "Indigo",
+    "Jade",
+    "Magenta",
+    "Maroon",
+    "Navy",
+    "Olive",
+    "Scarlet",
+    "Teal",
+    "Violet",
+    "Azure",
+    "Bronze",
+    "Copper",
+    "Ivory",
+    "Pearl",
+    "Ruby",
+    "Sage",
+    "Sand",
+    "Slate",
+    "Steel",
+    "Sunny",
+    "Rusty",
+    "Misty",
+    "Dusty",
+    "Frosty",
 )
 NOUNS: Iterable[str] = (
+    # Original 11
     "Stone",
     "Lake",
     "Dog",
@@ -32,6 +65,49 @@ NOUNS: Iterable[str] = (
     "Hill",
     "Snow",
     "Castle",
+    # Extended nature
+    "River",
+    "Forest",
+    "Meadow",
+    "Valley",
+    "Ridge",
+    "Canyon",
+    "Cliff",
+    "Shore",
+    "Island",
+    "Dune",
+    "Marsh",
+    "Grove",
+    "Glen",
+    "Bluff",
+    "Rapids",
+    # Extended animals
+    "Wolf",
+    "Hawk",
+    "Owl",
+    "Fox",
+    "Deer",
+    "Elk",
+    "Crow",
+    "Swan",
+    "Heron",
+    "Finch",
+    "Otter",
+    "Badger",
+    "Raven",
+    "Eagle",
+    "Falcon",
+    # Extended landmarks
+    "Tower",
+    "Bridge",
+    "Gate",
+    "Keep",
+    "Fort",
+    "Haven",
+    "Cove",
+    "Bay",
+    "Peak",
+    "Pass",
 )
 
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
@@ -62,7 +138,11 @@ def validate_agent_name_format(name: str) -> bool:
     Names should be:
     - Unique and easy to remember
     - NOT descriptive of the agent's role or task
-    - One of the predefined adjective+noun combinations
+    - One of the predefined adjective+noun combinations (optionally with numeric suffix)
+
+    Accepts formats:
+    - "GreenLake" (base adjective+noun)
+    - "GreenLake42" (with numeric suffix for uniqueness)
 
     Note: This validation is case-insensitive to match the database behavior
     where "GreenLake", "greenlake", and "GREENLAKE" are treated as the same.
@@ -72,14 +152,24 @@ def validate_agent_name_format(name: str) -> bool:
     if not name:
         return False
 
-    # Check if name matches any valid adjective+noun combination (case-insensitive)
+    # Strip trailing digits to check base name
     name_lower = name.lower()
+    base_name = name_lower.rstrip("0123456789")
+
+    # Check if base matches any valid adjective+noun combination (case-insensitive)
     for adjective in ADJECTIVES:
         for noun in NOUNS:
-            if name_lower == f"{adjective}{noun}".lower():
+            if base_name == f"{adjective}{noun}".lower():
                 return True
 
     return False
+
+
+def generate_agent_name_with_suffix(suffix: int) -> str:
+    """Return a random adjective+noun combination with numeric suffix."""
+    adjective = random.choice(tuple(ADJECTIVES))
+    noun = random.choice(tuple(NOUNS))
+    return f"{adjective}{noun}{suffix}"
 
 
 def sanitize_agent_name(value: str) -> Optional[str]:
